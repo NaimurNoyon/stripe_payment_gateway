@@ -42,36 +42,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Map<String, dynamic>? paymentIntent;
 
-  void makePayment() async {
+  void makeCardPayment() async {
     try {
       paymentIntent = await createPaymentIntent();
 
-      var gpay = const PaymentSheetGooglePay(
-        merchantCountryCode: "US",
-        currencyCode: "US",
-        testEnv: true,
-      );
-
-      // Initialize payment sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntent!["client_secret"],
           style: ThemeMode.light,
           merchantDisplayName: "Sabir",
-          googlePay: gpay,
-          customFlow: true,
-          allowsDelayedPaymentMethods: true, // set this to true
+          allowsDelayedPaymentMethods: true,
         ),
       );
 
-      // Proceed to display payment sheet after successful initialization
       displayPaymentSheet();
     } catch (e) {
-      print("problem is in here");
-      throw Exception(e.toString());
+      print("Problem occurred: $e");
     }
   }
-
 
   void displayPaymentSheet() async{
     try{
@@ -98,7 +86,9 @@ class _MyHomePageState extends State<MyHomePage> {
           "Content-Type":"application/x-www-form-urlencoded",
         }
       );
+      print(response.body);
       return json.decode(response.body);
+
     } catch(e){
       throw Exception(e.toString());
     }
@@ -119,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: TextButton(
           onPressed: () {
-            makePayment();
+            makeCardPayment();
           },
           child: const Text("Payment"),
         ),
